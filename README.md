@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/huyhoang17/Japanese_Handwriting_Recognition.svg?branch=master)](https://travis-ci.org/huyhoang17/Japanese_Handwriting_Recognition)
+
 # Japanese Handwriting Recognition
 
 Datasets __(ETL1C)__
@@ -55,31 +57,30 @@ datasets/ETL1
 
 ETL dataset
 ```
-datasets/ETL1C_data
-├── 20
-├── 27
-├── 28
-├── 29
-├── 2a
-├── 2b
-├── 2c
-├── 2d
-├── 2e
-├── 2f
+datasets/ETL1C_data/
+├── 166
+├── 168
+├── 170
+├── 177
+├── 178
+├── 179
+├── 180
+├── 181
+├── 182
+├── 183
 ...
 
-datasets/ETL1C_data/2a
-├── 4336_1001_2a.png
-├── 4337_1002_2a.png
-├── 4338_1003_2a.png
-├── 4339_1004_2a.png
-├── 4340_1005_2a.png
-├── 4341_1006_2a.png
-├── 4342_1007_2a.png
-├── 4343_1008_2a.png
-├── 4344_1009_2a.png
-├── 4345_1010_2a.png
-...
+datasets/ETL1C_data/200
+├── 4233_1001_200_c8.png
+├── 4234_1002_200_c8.png
+├── 4235_1003_200_c8.png
+├── 4236_1004_200_c8.png
+├── 4237_1005_200_c8.png
+├── 4238_1006_200_c8.png
+├── 4239_1007_200_c8.png
+├── 4240_1008_200_c8.png
+├── 4241_1009_200_c8.png
+├── 4242_1010_200_c8.png
 ...
 ```
 
