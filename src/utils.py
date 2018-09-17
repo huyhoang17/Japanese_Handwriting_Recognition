@@ -5,7 +5,6 @@ import os
 import logging
 import struct
 
-import numpy as np
 from PIL import Image, ImageEnhance
 
 logging.basicConfig(format='%(levelname)s : %(message)s', level=logging.INFO)
@@ -36,8 +35,8 @@ def check_dir_not_exist(base_dir):
                 logging.info(key, char)
 
 
-def read_record_make_dir(f, f_no_records, path_data, index):
-    count, jps_index = 0, 0
+def read_record(f, f_no_records, path_data):
+
     for i in range(f_no_records):
         f.seek(i * 2052)
         s = f.read(2052)
@@ -50,32 +49,7 @@ def read_record_make_dir(f, f_no_records, path_data, index):
             logging.error(e)
             break
 
-        if index < 6:
-            label = r[1].decode("utf-8").strip()
-        elif index == 6:
-            label = r[1].decode("utf-8").strip()
-            count += 1
-            if count <= 1445:
-                label = 'slash'
-            if 4 * 1445 < count <= 5 * 1445:
-                label = 'dot'
-            if 6 * 1445 < count <= 7 * 1445:
-                label = '␣'
-        else:
-            label = jps_chars[index][jps_index].strip()
-            count += 1
-            if (index == 9 and jps_index == 4) or \
-                    (index == 12 and jps_index == 1):
-                # Read more: http://etlcdb.db.aist.go.jp/?page_id=1181
-                # 11287 note: ナ(NA) on Sheet 2672 is missing
-                # 11287 note: リ(RI) on Sheet 2708 is missing
-                if count == 1410:
-                    jps_index += 1
-                    count = 0
-            else:
-                if count == 1411:
-                    jps_index += 1
-                    count = 0
+        label = str(r[3])
 
         label_dir = os.path.join(path_data, label)
         if not os.path.exists(label_dir):
@@ -85,8 +59,11 @@ def read_record_make_dir(f, f_no_records, path_data, index):
         img = Image.frombytes('F', (64, 63), r[18], 'bit', 4)
         # convert float to int: F -> P
         img = img.convert('P')
-        fn = os.path.join(label_dir, "{:1d}-{:4d}-{:1d}-{:2x}.png".format(
-            r[0], r[2], r[3], r[4]))
+        # :x ~ hex()
+        fn = os.path.join(
+            label_dir,
+            "{:1d}_{:4d}_{:1d}_{:2x}.png".format(r[0], r[2], r[3], r[3])
+        )
 
         # iP.save(fn, 'PNG', bits=4)
         enhancer = ImageEnhance.Brightness(img)
@@ -129,7 +106,6 @@ def make_datasets():
     no_records = read_no_records(path_etl)
     fmt_etl = 'ETL1C_{:02d}'
     for i in range(1, 14):
-        # 13 datasets
         logging.info('>>> Process %s', str(i))
         filename = os.path.join(path_etl, fmt_etl.format(i))
         if not os.path.exists(filename):
@@ -137,20 +113,7 @@ def make_datasets():
             break
 
         with open(filename, 'rb') as f:
-            read_record_make_dir(f, no_records[i - 1], path_data, i)
-
-
-def rgb2gray_image(image, mode='numpy'):
-    '''
-    https://stackoverflow.com/questions/12201577/how-can-i-convert-an-rgb-image-into-grayscale-in-python
-    '''
-    image = image.astype(np.uint8)
-    if mode == 'skimage':
-        from skimage.color import rgb2gray  # noqa
-        image = rgb2gray(image)  # FIX
-    elif mode == 'numpy':
-        image = np.dot(image[..., :3], [0.299, 0.587, 0.114])
-    return image
+            read_record(f, no_records[i - 1], path_data)
 
 
 if __name__ == '__main__':

@@ -8,11 +8,11 @@ from keras.layers.convolutional import (
     Conv2D, MaxPooling2D
 )
 
-from gen_data import no_label_dirs
+from src.gen_data import no_label_dirs
 
 
 def M16(weights_path=None,
-        input_shape=(64, 64, 1),
+        input_shape=(28, 28, 3),
         n_output=None,
         freeze_layers=False):
 
@@ -82,9 +82,23 @@ def M16(weights_path=None,
     model.add(Activation('softmax'))
 
     if weights_path is not None:
-        try:
-            model.load_weights(weights_path)
-        except Exception as e:
-            print(e)
+        model.load_weights(weights_path)
+
+    return model
+
+
+def baseline_model():
+    model = Sequential()
+    model.add(Conv2D(32, kernel_size=(3, 3),
+                     activation='relu',
+                     input_shape=[28, 28, 3]))
+    model.add(Conv2D(64, (3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(3, 3)))
+    model.add(Conv2D(32, (3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(3, 3)))
+    model.add(Flatten())
+    model.add(Dense(4096, activation='relu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(no_label_dirs(), activation='softmax'))
 
     return model

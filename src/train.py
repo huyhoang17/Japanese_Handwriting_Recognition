@@ -2,30 +2,30 @@ from datetime import datetime
 import os
 
 from keras.callbacks import ModelCheckpoint
-from keras.optimizers import SGD
 
-from models import M16
+import src.config as cf
+from src.models import baseline_model
 from src.gen_data import data_generator, no_label_dirs
 
-BASE_DATA_DIR = '../datasets'  # noqa
 
-model = M16(input_shape=(64, 64, 1))
+model = baseline_model()
 
 train_set = data_generator(
-    filename=os.path.join(BASE_DATA_DIR, 'train_set.csv')
+    filename=os.path.join(cf.BASE_DATA_DIR, 'train_set.csv'),
+    batch_size=cf.BATCH_SIZE
 )
 test_set = data_generator(
-    filename=os.path.join(BASE_DATA_DIR, 'test_set.csv')
+    filename=os.path.join(cf.BASE_DATA_DIR, 'test_set.csv'),
+    batch_size=cf.BATCH_SIZE
 )
 
-sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
 model.compile(
-    optimizer=sgd, loss='categorical_crossentropy', metrics=['accuracy']
+    optimizer='adadelta', loss='categorical_crossentropy', metrics=['accuracy']
 )
 checkpointer = ModelCheckpoint(
-    filepath='models/checkpoints/gei_generator_modelcheckpoints_{}.{}_epochs.{}.hdf5'.format(  # noqa
-        no_label_dirs,
-        10,
+    filepath=cf.FMT_MODEL_CHECKPOINT.format(
+        no_label_dirs(),
+        2,
         datetime.now().strftime("%d-%m-%y-%H-%M-%S")
     ),
     verbose=1, save_best_only=True
@@ -34,16 +34,18 @@ checkpointer = ModelCheckpoint(
 #     log_dir='./logs', histogram_freq=0, batch_size=16,
 #     write_graph=True, write_images=True
 # )
+NO_TRAIN_SET = sum(1 for line in open(os.path.join(cf.BASE_DATA_DIR, 'train_set.csv')))  # noqa
+NO_TEST_SET = sum(1 for line in open(os.path.join(cf.BASE_DATA_DIR, 'test_set.csv')))  # noqa
 model.fit_generator(
-    train_set, epochs=2,
-    steps_per_epoch=sum(1 for line in open(os.path.join(BASE_DATA_DIR, 'train_set.csv'))) // 16,  # noqa
+    train_set, epochs=cf.NO_EPOCHS,
+    steps_per_epoch=NO_TRAIN_SET // cf.BATCH_SIZE,  # noqa
     validation_data=test_set,
-    validation_steps=sum(1 for line in open(os.path.join(BASE_DATA_DIR, 'test_set.csv'))) // 16,  # noqa
+    validation_steps=NO_TEST_SET // cf.BATCH_SIZE,  # noqa
     callbacks=[checkpointer]
 )
 model.save(
-    "models/checkpoints/gei_generator_model_{}.{}_epochs.{}.h5".format(
-        no_label_dirs,
+    cf.FMT_MODEL_SAVE.format(
+        no_label_dirs(),
         10,
         datetime.now().strftime("%d-%m-%y-%H-%M-%S")
     )

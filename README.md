@@ -1,6 +1,6 @@
 # Japanese Handwriting Recognition
 
-Datasets
+Datasets __(ETL1C)__
 ---
 
 - Download ETL Dataset: http://etlcdb.db.aist.go.jp/?page_id=651
@@ -10,7 +10,7 @@ Command
 ---
 
 ```
-python3 src/utils.py
+export PYTHONPATH=path_to_Japanese_Recognition_project
 ```
 
 Folder Structure
@@ -56,39 +56,40 @@ datasets/ETL1
 ETL dataset
 ```
 datasets/ETL1C_data
-├── =
-├── -
-├── ,
-├── '
-├── (
-├── )
-├── *
-├── +
-├── ツ
-├── エ
-├── ハ
-├── ヲ
-├── ウ
-├── ソ
-├── ヒ
-├── ネ
-├── タ
-├── ン
-├── ロ
+├── 20
+├── 27
+├── 28
+├── 29
+├── 2a
+├── 2b
+├── 2c
+├── 2d
+├── 2e
+├── 2f
 ...
-datasets/ETL1C_data/A
-├── 2891-1001-65-c1.png
-├── 2892-1002-65-c1.png
-├── 2893-1003-65-c1.png
-├── 2894-1004-65-c1.png
-├── 2895-1005-65-c1.png
-├── 2896-1006-65-c1.png
-├── 2897-1007-65-c1.png
-├── 2898-1008-65-c1.png
-├── 2899-1009-65-c1.png
-├── 2900-1010-65-c1.png
+
+datasets/ETL1C_data/2a
+├── 4336_1001_2a.png
+├── 4337_1002_2a.png
+├── 4338_1003_2a.png
+├── 4339_1004_2a.png
+├── 4340_1005_2a.png
+├── 4341_1006_2a.png
+├── 4342_1007_2a.png
+├── 4343_1008_2a.png
+├── 4344_1009_2a.png
+├── 4345_1010_2a.png
+...
 ...
 ```
 
+Result
+---
+
 Reference
 ---
+
+Custom data generator in keras
+- https://medium.com/@ensembledme/writing-custom-keras-generators-fe815d992c5a
+- https://stanford.edu/~shervine/blog/keras-how-to-generate-data-on-the-fly
+- https://keunwoochoi.wordpress.com/2017/08/24/tip-fit_generator-in-keras-how-to-parallelise-correctly

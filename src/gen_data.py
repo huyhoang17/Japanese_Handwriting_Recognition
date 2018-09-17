@@ -5,17 +5,16 @@ and writing path file to 2 seperate files
 - test_data.csv
 
 datasets/ETL1C_data
-├── ツ
-├── エ
-├── ハ
-├── ヲ
-├── ウ
-├── ソ
-├── ヒ
-├── ネ
-├── タ
-├── ン
-├── ロ
+├── 20
+├── 27
+├── 28
+├── 29
+├── 2a
+├── 2b
+├── 2c
+├── 2d
+├── 2e
+├── 2f
 ...
 """
 import itertools
@@ -27,12 +26,7 @@ from keras.preprocessing.image import img_to_array, load_img
 from keras.utils import np_utils
 from PIL import Image
 
-from src.utils import rgb2gray_image
-
-BASE_LABEL_DIR = "../datasets/ETL1C_data"  # noqa
-IMAGE_SIZE = 64
-TRAIN_FILE = '../datasets/train_set.csv'
-TEST_FILE = '../datasets/test_set.csv'
+import src.config as cf
 
 
 def head(stream, n=10):
@@ -43,12 +37,12 @@ def head(stream, n=10):
 
 
 def no_label_dirs():
-    label_dirs = os.listdir(BASE_LABEL_DIR)
+    label_dirs = os.listdir(cf.BASE_LABEL_DIR)
     return len(label_dirs)
 
 
 def id2word():
-    dirs = os.listdir(BASE_LABEL_DIR)
+    dirs = os.listdir(cf.BASE_LABEL_DIR)
     dirs.sort()
     return {index: char for index, char in enumerate(dirs)}
 
@@ -58,11 +52,11 @@ def word2id():
 
 
 def train_test_split_file(train_size=0.8):
-    label_dirs = os.listdir(BASE_LABEL_DIR)
-    labels = [os.path.join(BASE_LABEL_DIR, label_dir)
+    label_dirs = os.listdir(cf.BASE_LABEL_DIR)
+    labels = [os.path.join(cf.BASE_LABEL_DIR, label_dir)
               for label_dir in label_dirs]
-    with open(TRAIN_FILE, 'w') as f_train, \
-            open(TEST_FILE, 'w') as f_test:
+    with open(cf.TRAIN_FILE, 'w') as f_train, \
+            open(cf.TEST_FILE, 'w') as f_test:
         for label in labels:
             files = (x for x in Path(label).iterdir() if x.is_file())
             while True:
@@ -73,15 +67,16 @@ def train_test_split_file(train_size=0.8):
                 train_set = sub_files[:set_index]
                 test_test = sub_files[set_index:]
                 for file in train_set:
-                    f_train.write(str(file) + '\n')
+                    f_train.write(os.path.abspath(str(file)) + '\n')
                 for file in test_test:
-                    f_test.write(str(file) + '\n')
+                    f_test.write(os.path.abspath(str(file)) + '\n')
 
 
 def data_generator(filename, batch_size=16):
     """
     https://medium.com/@ensembledme/writing-custom-keras-generators-fe815d992c5a
     https://stanford.edu/~shervine/blog/keras-how-to-generate-data-on-the-fly
+    https://keunwoochoi.wordpress.com/2017/08/24/tip-fit_generator-in-keras-how-to-parallelise-correctly
     """
     def gen_data():
         with open(filename) as f:
@@ -89,28 +84,29 @@ def data_generator(filename, batch_size=16):
                 yield line.strip()
 
     no_dirs = no_label_dirs()
-
+    word_to_id = word2id()
     data_iter = gen_data()
     while True:
         path_files = head(data_iter, n=batch_size)
         if len(path_files) == 0:
             break
-        imgs, indexes = [], []
+        imgs, indexes, labels = [], [], []
         for path_file in path_files:
             img = load_img(path_file)
-            img = img.resize((IMAGE_SIZE, IMAGE_SIZE), Image.ANTIALIAS)
+            img = img.resize((cf.IMAGE_SIZE, cf.IMAGE_SIZE), Image.ANTIALIAS)
             img = img_to_array(img)
-            img = rgb2gray_image(img)
-            img = img[..., np.newaxis]
+            img = img / 255
             imgs.append(img)
 
             label = path_file.split('/')[-2]
-            index = word2id()[label]
+            labels.append(label)
+            index = word_to_id[label]
             indexes.append(index)
 
+        # np.float32
         X = np.array(imgs)
         Y = np_utils.to_categorical(
-            np.array(indexes).astype(np.uint8),
+            indexes,
             no_dirs
         )
         yield X, Y
