@@ -127,8 +127,8 @@ def make_datasets():
 
     no_records = read_no_records(path_etl)
     fmt_etl = 'ETL1C_{:02d}'
-    for i in range(6, 7):
-        # 13 etc's datasets
+    for i in range(1, 14):
+        # 13 datasets
         logging.info('>>> Process %s', str(i))
         filename = os.path.join(path_etl, fmt_etl.format(i))
         if not os.path.exists(filename):
