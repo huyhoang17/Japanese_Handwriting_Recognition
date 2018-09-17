@@ -5,6 +5,7 @@ import os
 import logging
 import struct
 
+import numpy as np
 from PIL import Image, ImageEnhance
 
 logging.basicConfig(format='%(levelname)s : %(message)s', level=logging.INFO)
@@ -137,6 +138,19 @@ def make_datasets():
 
         with open(filename, 'rb') as f:
             read_record_make_dir(f, no_records[i - 1], path_data, i)
+
+
+def rgb2gray_image(image, mode='numpy'):
+    '''
+    https://stackoverflow.com/questions/12201577/how-can-i-convert-an-rgb-image-into-grayscale-in-python
+    '''
+    image = image.astype(np.uint8)
+    if mode == 'skimage':
+        from skimage.color import rgb2gray  # noqa
+        image = rgb2gray(image)  # FIX
+    elif mode == 'numpy':
+        image = np.dot(image[..., :3], [0.299, 0.587, 0.114])
+    return image
 
 
 if __name__ == '__main__':
