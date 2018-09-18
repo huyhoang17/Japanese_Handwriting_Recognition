@@ -37,7 +37,10 @@ def head(stream, n=10):
 
 
 def no_label_dirs():
-    label_dirs = os.listdir(cf.BASE_LABEL_DIR)
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    label_dirs = os.listdir(
+        os.path.join(root_dir, 'datasets/ETL1C_data')
+    )
     return len(label_dirs)
 
 

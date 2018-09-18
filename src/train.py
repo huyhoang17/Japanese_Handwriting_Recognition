@@ -6,18 +6,22 @@ from keras.callbacks import ModelCheckpoint
 import src.config as cf
 from src.models import baseline_model
 from src.gen_data import data_generator, no_label_dirs
+from src.utils import read_and_fetch_datasets
 
 
 model = baseline_model()
 
-train_set = data_generator(
-    filename=os.path.join(cf.BASE_DATA_DIR, 'train_set.csv'),
-    batch_size=cf.BATCH_SIZE
-)
-test_set = data_generator(
-    filename=os.path.join(cf.BASE_DATA_DIR, 'test_set.csv'),
-    batch_size=cf.BATCH_SIZE
-)
+if cf.SAVE_IMAGE:
+    train_set = data_generator(
+        filename=os.path.join(cf.BASE_DATA_DIR, 'train_set.csv'),
+        batch_size=cf.BATCH_SIZE
+    )
+    test_set = data_generator(
+        filename=os.path.join(cf.BASE_DATA_DIR, 'test_set.csv'),
+        batch_size=cf.BATCH_SIZE
+    )
+else:
+    samples = read_and_fetch_datasets(cf.BATCH_SIZE)
 
 model.compile(
     optimizer='adadelta', loss='categorical_crossentropy', metrics=['accuracy']
